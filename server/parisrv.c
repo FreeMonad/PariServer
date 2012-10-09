@@ -1,6 +1,6 @@
 /**
  *-----------------------------------------------
- * parisrv.c - Ansrv wrapper around libpari.
+ * parisrv.c - wrapper around libpari.
  *-----------------------------------------------
  * Copyright (C) 2012, Charles Boyd
  *
@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include<setjmp.h>
+#include <setjmp.h>
 #include <errno.h>
 #include <string.h>
 #include <strings.h>
@@ -28,7 +28,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-
 #include "parisrv.h"
 
 #define SOCK_PATH "pari_socket"
@@ -102,7 +101,6 @@ parisrv_init()
 
 }
 
-
 char 
 *parisrv_eval(const char *in) 
 {
@@ -143,11 +141,9 @@ parisrv_nb_hist() { return pari_nb_hist(); }
 void
 parisrv_close() { pari_close(); }
 
-
 int 
 main(void)
 {
-  parisrv_init();
 
   int s, s2, t, len;
   struct sockaddr_un local, remote;
@@ -170,12 +166,14 @@ main(void)
     perror("listen");
     exit(1);
   }
-
+  
+  parisrv_init();
+  
   for(;;) {
     int done, n;
     printf("Waiting for a connection...\n");
     t = sizeof(remote);
-    if ((s2 = accept(s, (struct sockaddr *)&remote, &t)) == -1) {
+    if ((s2 = accept(s, (struct sockaddr *)&remote, (socklen_t *)&t)) == -1) {
       perror("accept");
       exit(1);
     }
@@ -184,7 +182,7 @@ main(void)
     
     done = 0;
     do {
-      n = recv(s2, str, 1024, 0);
+      n = recv(s2, str, sizeof(str), 0);
       if (n <= 0) {
 	if (n < 0) perror("recv");
 	done = 1;
@@ -192,13 +190,13 @@ main(void)
       if (!done) {
 	  char *out;
 	  out = parisrv_eval(str);
-       	if (send(s2, out, strlen(out), 0) < 0) {
+       	if (send(s2, out, 1024, 0) < 0) {
 	  perror("send");
 	  done = 1;
 	}
       }
     } while (!done);
-    parisrv_close();
+    pari_close();
     close(s2);
   }
 

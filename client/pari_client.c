@@ -31,15 +31,15 @@ int main(void)
 
   printf("Connected.\n");
 
-  while(printf("> "), fgets(str, 1024, stdin), !feof(stdin)) {
-    if (send(s, str, strlen(str), 0) == -1) {
+  while(printf("(gp)> "), fgets(str, sizeof(str), stdin), !feof(stdin)) {
+    if (send(s, str, 1024, 0) == -1) {
       perror("send");
       exit(1);
     }
 
-    if ((t=recv(s, str, 1024, 0)) > 0) {
+    if ((t=recv(s, str, sizeof(str), 0)) > 0) {
       str[t] = '\0';
-      printf("%s", str);
+      printf("? %s\n",str);
     } else {
       if (t < 0) perror("recv");
       else printf("Server closed connection\n");
