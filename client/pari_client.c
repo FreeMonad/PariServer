@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#define SOCK_PATH "echo_socket"
+#define SOCK_PATH "pari_socket"
 
 int main(void)
 {
