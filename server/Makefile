@@ -1,37 +1,41 @@
-# Generic Makefile for PARI programs -- amd64 running linux (x86-64 kernel) 64-bit version
-#
-#  This file was created by Configure. Any change made to it will be
-#  lost when Configure is run.
-#
-# make all will create
-#  extgcd-dyn (linked dynamically with libpari)
-#  extgcd-sta (linked statically)
-#  libextgcd.so (to be used by "install" under GP)
-#
-# Under GP: install("extgcd", "GG&&", "gcdex", "./libextgcd.so") enables
-# you to subsequently use gcdex to call extgcd (see the reference manual).
-#
+#-*-Makefile-*-
 
-# change this TARGET to compile your own programs
 TARGET = parisrv
 SHELL  = /bin/sh
+OS ?=
 
+RM = rm -f
+
+ifeq ($(OS),darwin)
 DBGFLAGS   = -g -Wall
 CFLAGS     = -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer
 EXTRACFLAGS=
 #CFLAGS    = $(DBGFLAGS)
 
-# Various linkers use different flags to force static compilation. Choose
-# the one which is relevant for your installation.
-#
-# Solaris ld (global)
-#STATIC    = -dn
+CC         = /usr/bin/gcc
+CPPFLAGS   = -I. -I/usr/local/include
+LD         = /usr/bin/gcc
+LDFLAGS    = -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer    -Wl,-search_paths_first 
+MODLD      = /usr/bin/gcc
+MODLDFLAGS = -bundle -flat_namespace -undefined suppress $(CFLAGS) $(DLCFLAGS)
+EXTRAMODLDFLAGS = 
+EXTRALIBS  =
 
-# Solaris ld (toggle: no shared object accepted until -B dynamic is seen
-#STATIC    = -B static
+RUNPTH     = 
+DLCFLAGS   = -fPIC
+LIBS       =  -L/usr/local/lib -lpari
 
-# gcc
-#STATIC    = -static
+RM = rm -f
+
+OBJS = $(TARGET).o
+DYN = lib$(TARGET).dylib
+ALL = $(TARGET)-sta $(TARGET)-dyn $(DYN)
+
+DYN = lib$(TARGET).so
+else
+DBGFLAGS   = -g -Wall
+CFLAGS     = -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer
+EXTRACFLAGS=
 
 CC         = /usr/bin/gcc
 CPPFLAGS   = -I. -I/usr/local/include
@@ -48,9 +52,13 @@ LIBS       = -lm -L/usr/local/lib -lpari
 
 RM = rm -f
 
-
 OBJS = $(TARGET).o
 DYN = lib$(TARGET).so
+ALL = $(TARGET)-sta $(TARGET)-dyn $(DYN)
+endif
+
+OBJS = $(TARGET).o
+
 ALL = $(TARGET)-sta $(TARGET)-dyn $(DYN)
 
 dft: $(TARGET)-dyn

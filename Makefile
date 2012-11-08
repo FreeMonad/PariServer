@@ -1,21 +1,30 @@
-.PHONY: all server client clean
+.PHONY: all server server_clean client client_clean clean uberclean
+
+CWD = $(shell pwd)
+
+CLIENT = $(CWD)/client
+
+SERVER = $(CWD)/server
 
 all: server client
 
-server: parisrv-dyn
-
-parisrv-dyn:
-	make -C ./server
+server:
+	make -C $(SERVER)
 	mv ./server/parisrv-dyn ./parisrv
 
-client: pari_client
-
-pari_client:
-	make -C ./client
+client:
+	make -C $(CLIENT)
 	mv ./client/pari_client ./pari_client
 
-clean:
-	make -C ./server clean
+server_clean:
+	make -C $(SERVER) clean
+
+client_clean:
+	make -C $(CLIENT) clean
+
+clean: server_clean client_clean
+
+uberclean: clean
 	rm -f ./parisrv
 	rm -f ./pari_client
 	rm -f ./pari_socket
