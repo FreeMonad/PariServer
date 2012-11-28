@@ -1,3 +1,8 @@
+Note
+=====
+
+This project is superceded by GPP and will no longer be updated.
+
 Sample Client Session
 ======================
 ```
